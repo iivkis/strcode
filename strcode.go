@@ -18,15 +18,15 @@ var (
 	ErrExpiresInIsZero    = errors.New("expires in cannot be zero")
 )
 
-type strcode struct {
+type Strcode struct {
 	secret    rune
 	seperator string
 	expiresIn int64
 }
 
-func NewStrCode(secret string, separator string, expiresIn time.Duration) (*strcode, error) {
+func NewStrCode(secret string, separator string, expiresIn time.Duration) (*Strcode, error) {
 	if expiresIn == 0 {
-		return &strcode{}, ErrExpiresInIsZero
+		return &Strcode{}, ErrExpiresInIsZero
 	}
 
 	var sum rune = 1
@@ -34,14 +34,14 @@ func NewStrCode(secret string, separator string, expiresIn time.Duration) (*strc
 		sum += char
 	}
 
-	return &strcode{
+	return &Strcode{
 		secret:    sum,
 		seperator: separator,
 		expiresIn: int64(expiresIn) / nanosec,
 	}, nil
 }
 
-func (s *strcode) hash(str string, expiresAt int64) (hash int64) {
+func (s *Strcode) hash(str string, expiresAt int64) (hash int64) {
 	var sum rune = 1
 	for _, char := range str {
 		sum += char
@@ -55,12 +55,12 @@ func (s *strcode) hash(str string, expiresAt int64) (hash int64) {
 	return hash
 }
 
-func (s *strcode) Encode(str string) string {
+func (s *Strcode) Encode(str string) string {
 	expiresAt := time.Now().Unix() + s.expiresIn
 	return str + s.seperator + strconv.FormatInt(s.hash(str, expiresAt), 10) + s.seperator + strconv.FormatInt(expiresAt, 10)
 }
 
-func (s *strcode) Decode(code string) (string, error) {
+func (s *Strcode) Decode(code string) (string, error) {
 	codeSplit := strings.Split(code, s.seperator)
 	if len(codeSplit) != 3 {
 		return "", ErrIncorrectParametrs
