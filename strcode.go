@@ -24,7 +24,7 @@ type Strcode struct {
 	expiresIn int64
 }
 
-func NewStrCode(secret string, separator string, expiresIn time.Duration) (*Strcode, error) {
+func NewStrcode(secret string, separator string, expiresIn time.Duration) (*Strcode, error) {
 	if expiresIn == 0 {
 		return &Strcode{}, ErrExpiresInIsZero
 	}
